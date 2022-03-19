@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent --noStackTrace",
+    "test": "jest --passWithNoTests --silent --noStackTrace",
     "test:verbose": "jest",
+    "teste:ci": "npm test -- --coverage",
     "dev": "ts-node-dev src/index.ts"
   },
   "keywords": [],
@@ -21,7 +22,9 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.2.0",
+    "husky": "^7.0.4",
     "jest": "^27.5.1",
+    "lint-staged": "^12.3.7",
     "prettier": "^2.6.0",
     "ts-jest": "^27.1.3",
     "ts-node": "^10.7.0",
