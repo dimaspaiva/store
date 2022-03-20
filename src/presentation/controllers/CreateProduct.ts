@@ -5,10 +5,16 @@ import { WrongParamValueError } from '../errors/WrongParamValue'
 import { requestFailed } from '../helpers/http-helper'
 import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
+import { IdGenerator } from '../protocols/idGenerator'
 
 export class CreateProductController implements Controller {
+  private readonly idGenerator:  IdGenerator
   private requiredParams = ['name', 'description', 'amount']
-  
+
+  constructor (idGenerator: IdGenerator) {
+    this.idGenerator =  idGenerator
+  }
+
   async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
     if (!httpRequest.body.product) {
       return requestFailed(
@@ -17,6 +23,7 @@ export class CreateProductController implements Controller {
     }
 
     const { product } = httpRequest.body
+    const productId = this.idGenerator.generate();
 
     const missingParam = this.validateParams(product)
     if (missingParam) {

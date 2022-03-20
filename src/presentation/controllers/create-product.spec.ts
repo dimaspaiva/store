@@ -3,6 +3,7 @@ import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
 import { MissingEntityError } from '../errors/MissingEntity'
 import { WrongParamValueError } from '../errors/WrongParamValue'
+import { IdGenerator } from '../protocols/idGenerator'
 
 const testProduct = {
   name: 'Product Name',
@@ -10,12 +11,23 @@ const testProduct = {
   description: 'Product description'
 }
 
+const makeIdGenerator = () => {
+  class IdGeneratorStub implements IdGenerator {
+    generate(): string {
+      return 'generated id'
+    }
+  }
+
+  return new IdGeneratorStub
+}
 
 const makeSut = () => {
-  const sut = new CreateProductController()
+  const idGenerator = makeIdGenerator()
+  const sut = new CreateProductController(idGenerator)
 
   return {
-    sut
+    sut,
+    idGenerator
   }
 }
 
@@ -71,5 +83,15 @@ describe('Create Product', () => {
     const response = await sut.handle({ body: {} })
     expect(response.statusCode).toBe(400)
     expect(response.body).toEqual(new MissingEntityError('product'))
+  })
+
+  it('Should call generate id once when product is created', async () => {
+    const { sut, idGenerator } = makeSut()
+    const idGeneratorSpy = jest.spyOn(idGenerator, 'generate')
+    const product = testProduct
+
+    await sut.handle({body: { product } })
+
+    expect(idGeneratorSpy).toHaveBeenCalled()
   })
 })
