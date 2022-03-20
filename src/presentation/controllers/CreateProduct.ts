@@ -1,6 +1,7 @@
 import { MissingEntityError } from '../errors/MissingEntity'
 import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
+import { requestFailed } from '../helpers/http-helper'
 import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
 
@@ -9,27 +10,24 @@ export class CreateProductController implements Controller {
   
   async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
     if (!httpRequest.body.product) {
-      return {
-        statusCode: 400,
-        body: new MissingEntityError('product')
-      }
+      return requestFailed(
+        new MissingEntityError('product')
+      )
     }
 
     const { product } = httpRequest.body
 
     const missingParam = this.validateParams(product)
     if (missingParam) {
-      return {
-        statusCode: 400,
-        body: new MissingParamError(missingParam)
-      }
+      return requestFailed(
+        new MissingParamError(missingParam)
+      )
     }
 
     if (!this.isValidAmount(product.amount)) {
-      return {
-        statusCode: 400,
-        body: new WrongParamTypeError('amount', 'number')
-      }
+      return requestFailed(
+        new WrongParamTypeError('amount', 'number')
+      )
     }
   }
 
