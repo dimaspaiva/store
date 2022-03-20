@@ -1,6 +1,7 @@
 import { CreateProductController } from './CreateProduct'
 import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
+import { MissingEntityError } from '../errors/MissingEntity'
 
 const testProduct = {
   name: 'Product Name',
@@ -52,5 +53,13 @@ describe('Create Product', () => {
     const response = await sut.handle({ body: { product } })
     expect(response.statusCode).toBe(400)
     expect(response.body).toEqual(new MissingParamError('amount'))
+  })
+
+  it('Should return 400 if product is empty or missing', async () => {
+    const { sut } = makeSut()
+
+    const response = await sut.handle({ body: {} })
+    expect(response.statusCode).toBe(400)
+    expect(response.body).toEqual(new MissingEntityError('product'))
   })
 })

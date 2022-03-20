@@ -1,3 +1,4 @@
+import { MissingEntityError } from '../errors/MissingEntity'
 import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
 import { Controller } from '../protocols/controller'
@@ -7,8 +8,14 @@ export class CreateProductController implements Controller {
   private requiredParams = ['name', 'description', 'amount']
   
   async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
-    const missingParam = this.validateParams(httpRequest.body.product)
+    if (!httpRequest.body.product) {
+      return {
+        statusCode: 400,
+        body: new MissingEntityError('product')
+      }
+    }
 
+    const missingParam = this.validateParams(httpRequest.body.product)
     if (missingParam) {
       return {
         statusCode: 400,
