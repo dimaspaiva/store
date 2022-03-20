@@ -25,4 +25,13 @@ describe('Create Product', () => {
     expect(response.statusCode).toBe(400)
     expect(response.body).toEqual(new MissingParamError('name'))
   })
+
+  it('Should return 400 if product has no description', async () => {
+    const { sut } = makeSut()
+    const {description, ...product} = testProduct
+
+    const response = await sut.handle({ body: { product } })
+    expect(response.statusCode).toBe(400)
+    expect(response.body).toEqual(new MissingParamError('description'))
+  })
 })
