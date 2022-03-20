@@ -47,16 +47,29 @@ export class CreateProductController implements Controller {
       )
     }
     
-    const productId = this.idGenerator.generate();
     try {
+      const productId = this.idGenerator.generate();
       const newProduct = this.storeProduct.store({
         ...product,
         id: productId
       })
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: new ServerError('Failed to store a product')
+      switch (error.message) {
+        case 'store-product':
+          return {
+            statusCode: 500,
+            body: new ServerError('Failed to store a product')
+          }
+        case 'generate-id':
+          return {
+            statusCode: 500,
+            body: new ServerError('Failed to genereta a product id')
+          } 
+        default:
+          return {
+            statusCode: 500,
+            body: new ServerError('Unknown')
+          } 
       }
     }
   }

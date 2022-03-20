@@ -123,12 +123,25 @@ describe('Create Product', () => {
     const { sut, storeProduct } = makeSut()
     jest.spyOn(storeProduct, 'store')
     .mockImplementation(() => {
-      throw new Error()
+      throw new Error('store-product')
     })
     const product = testProduct
 
     const response = await sut.handle({body: { product }})
     expect(response.statusCode).toBe(500)
     expect(response.body).toEqual(new ServerError('Failed to store a product'))
+  })
+
+  it('Should throw store id generator throws', async () => {
+    const { sut, idGenerator } = makeSut()
+    jest.spyOn(idGenerator, 'generate')
+    .mockImplementation(() => {
+      throw new Error('generate-id')
+    })
+    const product = testProduct
+
+    const response = await sut.handle({body: { product }})
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toEqual(new ServerError('Failed to genereta a product id'))
   })
 })
