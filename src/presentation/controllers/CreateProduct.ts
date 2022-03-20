@@ -1,6 +1,7 @@
 import { MissingEntityError } from '../errors/MissingEntity'
 import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
+import { WrongParamValueError } from '../errors/WrongParamValue'
 import { requestFailed } from '../helpers/http-helper'
 import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
@@ -24,9 +25,15 @@ export class CreateProductController implements Controller {
       )
     }
 
-    if (!this.isValidAmount(product.amount)) {
+    if (!this.isValidAmountType(product.amount)) {
       return requestFailed(
         new WrongParamTypeError('amount', 'number')
+      )
+    }
+
+    if (!this.isValidAmountValue(product.amount)) {
+      return requestFailed(
+        new WrongParamValueError('amount', 'positive value')
       )
     }
   }
@@ -39,8 +46,15 @@ export class CreateProductController implements Controller {
     }
   }
 
-  isValidAmount(amount: any) {
+  isValidAmountType(amount: any) {
     if (typeof amount !== 'number') {
+      return false
+    }
+    return true
+  }
+
+  isValidAmountValue(amount: number) {
+    if (amount < 0) {
       return false
     }
     return true
