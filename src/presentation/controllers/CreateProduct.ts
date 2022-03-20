@@ -1,4 +1,5 @@
 import { MissingParamError } from '../errors/MissingParam'
+import { WrongParamTypeError } from '../errors/WrongParamType'
 import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
 
@@ -14,6 +15,13 @@ export class CreateProductController implements Controller {
         body: new MissingParamError(missingParam)
       }
     }
+
+    if (!this.isValidAmount(httpRequest.body.product.amount)) {
+      return {
+        statusCode: 400,
+        body: new WrongParamTypeError('amount', 'number')
+      }
+    }
   }
 
   validateParams(product: any) {
@@ -22,5 +30,12 @@ export class CreateProductController implements Controller {
         return param
       }
     }
+  }
+
+  isValidAmount(amount: any) {
+    if (typeof amount !== 'number') {
+      return false
+    }
+    return true
   }
 }
