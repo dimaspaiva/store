@@ -1,3 +1,4 @@
+import { StoreProduct } from '../../domain/useCases/storeProduct'
 import { MissingEntityError } from '../errors/MissingEntity'
 import { MissingParamError } from '../errors/MissingParam'
 import { WrongParamTypeError } from '../errors/WrongParamType'
@@ -9,10 +10,12 @@ import { IdGenerator } from '../protocols/idGenerator'
 
 export class CreateProductController implements Controller {
   private readonly idGenerator:  IdGenerator
+  private readonly storeProduct: StoreProduct
   private requiredParams = ['name', 'description', 'amount']
 
-  constructor (idGenerator: IdGenerator) {
+  constructor (idGenerator: IdGenerator, storeProduct: StoreProduct) {
     this.idGenerator =  idGenerator
+    this.storeProduct = storeProduct
   }
 
   async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
@@ -23,26 +26,31 @@ export class CreateProductController implements Controller {
     }
 
     const { product } = httpRequest.body
-    const productId = this.idGenerator.generate();
-
+    
     const missingParam = this.validateParams(product)
     if (missingParam) {
       return requestFailed(
         new MissingParamError(missingParam)
       )
     }
-
+      
     if (!this.isValidAmountType(product.amount)) {
       return requestFailed(
         new WrongParamTypeError('amount', 'number')
       )
     }
-
+      
     if (!this.isValidAmountValue(product.amount)) {
       return requestFailed(
         new WrongParamValueError('amount', 'positive value')
       )
     }
+    
+    const productId = this.idGenerator.generate();
+    const newProduct = this.storeProduct.store({
+      ...product,
+      id: productId
+    })
   }
 
   validateParams(product: any) {

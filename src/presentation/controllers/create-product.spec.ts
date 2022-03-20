@@ -4,6 +4,8 @@ import { WrongParamTypeError } from '../errors/WrongParamType'
 import { MissingEntityError } from '../errors/MissingEntity'
 import { WrongParamValueError } from '../errors/WrongParamValue'
 import { IdGenerator } from '../protocols/idGenerator'
+import { StoreProduct, StoreProductModel } from '../../domain/useCases/storeProduct'
+import { ProductModel } from '../../domain/models/product'
 
 const testProduct = {
   name: 'Product Name',
@@ -21,13 +23,25 @@ const makeIdGenerator = () => {
   return new IdGeneratorStub
 }
 
+const makeStoreProduct = () => {
+  class StoreProductStub implements StoreProduct {
+    store(product: StoreProductModel): ProductModel {
+      return product
+    }
+  }
+
+  return new StoreProductStub()
+}
+
 const makeSut = () => {
   const idGenerator = makeIdGenerator()
-  const sut = new CreateProductController(idGenerator)
+  const storeProduct = makeStoreProduct()
+  const sut = new CreateProductController(idGenerator, storeProduct)
 
   return {
     sut,
-    idGenerator
+    idGenerator,
+    storeProduct
   }
 }
 
@@ -93,5 +107,14 @@ describe('Create Product', () => {
     await sut.handle({body: { product } })
 
     expect(idGeneratorSpy).toHaveBeenCalled()
+  })
+
+  it('Should call storeProduct with correct values', async () => {
+    const { sut, storeProduct } = makeSut()
+    const storeProductSpy = jest.spyOn(storeProduct, 'store')
+    const product = testProduct
+
+    await sut.handle({body: { product }})
+    expect(storeProductSpy).toHaveBeenCalledWith({...product, id: 'generated id'}) 
   })
 })
