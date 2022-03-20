@@ -3,17 +3,23 @@ import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
 
 export class CreateProductController implements Controller {
-  async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {
+  private requiredParams = ['name', 'description']
+  
+  async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
+    const missingParam = this.validateParams(httpRequest.body.product)
 
-    if (!httpRequest.body.product.name) {
+    if (missingParam) {
       return {
         statusCode: 400,
-        body: new MissingParamError('name')
+        body: new MissingParamError(missingParam)
       }
-    } else if (!httpRequest.body.product.description) {
-      return {
-        statusCode: 400,
-        body: new MissingParamError('description')
+    }
+  }
+
+  validateParams(product: any) {
+    for(const param of this.requiredParams) {
+      if (!product[param]) {
+        return param
       }
     }
   }
