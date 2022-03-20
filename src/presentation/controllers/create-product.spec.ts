@@ -6,6 +6,7 @@ import { WrongParamValueError } from '../errors/WrongParamValue'
 import { IdGenerator } from '../protocols/idGenerator'
 import { StoreProduct, StoreProductModel } from '../../domain/useCases/storeProduct'
 import { ProductModel } from '../../domain/models/product'
+import { ServerError } from '../errors/ServerErrror'
 
 const testProduct = {
   name: 'Product Name',
@@ -116,5 +117,18 @@ describe('Create Product', () => {
 
     await sut.handle({body: { product }})
     expect(storeProductSpy).toHaveBeenCalledWith({...product, id: 'generated id'}) 
+  })
+
+  it('Should throw when store product throws', async () => {
+    const { sut, storeProduct } = makeSut()
+    jest.spyOn(storeProduct, 'store')
+    .mockImplementation(() => {
+      throw new Error()
+    })
+    const product = testProduct
+
+    const response = await sut.handle({body: { product }})
+    expect(response.statusCode).toBe(500)
+    expect(response.body).toEqual(new ServerError('Failed to store a product'))
   })
 })

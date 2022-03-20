@@ -1,6 +1,7 @@
 import { StoreProduct } from '../../domain/useCases/storeProduct'
 import { MissingEntityError } from '../errors/MissingEntity'
 import { MissingParamError } from '../errors/MissingParam'
+import { ServerError } from '../errors/ServerErrror'
 import { WrongParamTypeError } from '../errors/WrongParamType'
 import { WrongParamValueError } from '../errors/WrongParamValue'
 import { requestFailed } from '../helpers/http-helper'
@@ -47,10 +48,17 @@ export class CreateProductController implements Controller {
     }
     
     const productId = this.idGenerator.generate();
-    const newProduct = this.storeProduct.store({
-      ...product,
-      id: productId
-    })
+    try {
+      const newProduct = this.storeProduct.store({
+        ...product,
+        id: productId
+      })
+    } catch (error) {
+      return {
+        statusCode: 500,
+        body: new ServerError('Failed to store a product')
+      }
+    }
   }
 
   validateParams(product: any) {
