@@ -4,7 +4,7 @@ import { MissingParamError } from '../errors/MissingParam'
 import { ServerError } from '../errors/ServerErrror'
 import { WrongParamTypeError } from '../errors/WrongParamType'
 import { WrongParamValueError } from '../errors/WrongParamValue'
-import { requestFailed } from '../helpers/http-helper'
+import { internalServerError, requestFailed } from '../helpers/http-helper'
 import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
 import { IdGenerator } from '../protocols/idGenerator'
@@ -56,20 +56,13 @@ export class CreateProductController implements Controller {
     } catch (error) {
       switch (error.message) {
         case 'store-product':
-          return {
-            statusCode: 500,
-            body: new ServerError('Failed to store a product')
-          }
+          return internalServerError(new ServerError('Failed to store a product'))
+
         case 'generate-id':
-          return {
-            statusCode: 500,
-            body: new ServerError('Failed to genereta a product id')
-          } 
+          return internalServerError(new ServerError('Failed to genereta a product id'))
+
         default:
-          return {
-            statusCode: 500,
-            body: new ServerError('Unknown')
-          } 
+          return internalServerError(new ServerError('Unknown'))
       }
     }
   }
