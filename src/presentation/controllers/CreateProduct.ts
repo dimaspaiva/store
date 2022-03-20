@@ -4,7 +4,7 @@ import { Controller } from '../protocols/controller'
 import { HTTPRequest, HTTPResponse } from '../protocols/http'
 
 export class CreateProductController implements Controller {
-  private requiredParams = ['name', 'description']
+  private requiredParams = ['name', 'description', 'amount']
   
   async handle (httpRequest: HTTPRequest): Promise<HTTPResponse> {    
     const missingParam = this.validateParams(httpRequest.body.product)

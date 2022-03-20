@@ -45,4 +45,12 @@ describe('Create Product', () => {
     expect(response.body).toEqual(new WrongParamTypeError('amount', 'number'))
   })
 
+  it('Should return 400 if product amount type is missing', async () => {
+    const { sut } = makeSut()
+    const { amount, ...product } = testProduct
+
+    const response = await sut.handle({ body: { product } })
+    expect(response.statusCode).toBe(400)
+    expect(response.body).toEqual(new MissingParamError('amount'))
+  })
 })
