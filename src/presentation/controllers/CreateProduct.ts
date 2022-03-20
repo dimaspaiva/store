@@ -15,7 +15,9 @@ export class CreateProductController implements Controller {
       }
     }
 
-    const missingParam = this.validateParams(httpRequest.body.product)
+    const { product } = httpRequest.body
+
+    const missingParam = this.validateParams(product)
     if (missingParam) {
       return {
         statusCode: 400,
@@ -23,7 +25,7 @@ export class CreateProductController implements Controller {
       }
     }
 
-    if (!this.isValidAmount(httpRequest.body.product.amount)) {
+    if (!this.isValidAmount(product.amount)) {
       return {
         statusCode: 400,
         body: new WrongParamTypeError('amount', 'number')
