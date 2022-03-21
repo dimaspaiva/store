@@ -53,6 +53,11 @@ export class CreateProductController implements Controller {
         ...product,
         id: productId
       })
+
+      return {
+        statusCode: 200,
+        body: { product: newProduct }
+      }
     } catch (error) {
       switch (error.message) {
         case 'store-product':
